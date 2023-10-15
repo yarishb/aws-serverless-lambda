@@ -1,0 +1,6 @@
+{
+  "headers": {
+    "Content-Type": "application/json"
+  },
+  "body": "{\"title\":\"Xerjoff Erba Pura 1861\",\"description\":\"A decent fragrance\",\"price\":\"400\",\"count\":\"1\"}"
+}

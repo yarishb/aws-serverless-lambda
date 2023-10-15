@@ -8,11 +8,7 @@ import {
 } from "@functions/utils/utils";
 import { getProductWithStockById } from "@functions/utils/manageDB/manageDB";
 import { APIGatewayEvent } from "aws-lambda";
-
-enum StatusCodes {
-  SUCCESS = 200,
-  NOT_FOUND = 404,
-}
+import { StatusCodes } from "@interfaces/product";
 
 export const getProductById = async (event: APIGatewayEvent) => {
   try {

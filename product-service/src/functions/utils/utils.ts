@@ -25,3 +25,15 @@ export const formatResponse =
   (statusCode: number) =>
   (data: unknown): APIGatewayProxyResult =>
     formatJSONResponse(statusCode, { data });
+
+export const validateProduct = (product) => {
+  const requiredField = ["title", "price", "description"];
+
+  requiredField.forEach((field) => {
+    if (!product[field]) {
+      throw Error("Invalid product fields");
+    }
+  });
+
+  return product;
+};

@@ -1,16 +1,18 @@
-import { Product, ProductList } from "@interfaces/product";
-import { compose } from "../utils";
-
+import { Product } from "@interfaces/product";
 const AWSInstance = require("aws-sdk");
+const { v4: uuidv4 } = require("uuid");
 
-const dbClient = new AWSInstance.DynamoDB.DocumentClient();
+const dbClient = new AWSInstance.DynamoDB.DocumentClient({
+  apiVersion: "2012-08-10",
+  region: "us-east-1",
+});
 
-const TABLE_NAMES = {
-  products: "products",
-  stocks: "stocks",
-};
+enum TableName {
+  products = "products",
+  stocks = "stocks",
+}
 
-const retrieveDataFromTable = (tableName, query = {}) =>
+const retrieveDataFromTable = (tableName: TableName, query = {}) =>
   dbClient
     .scan({
       TableName: tableName,
@@ -18,13 +20,27 @@ const retrieveDataFromTable = (tableName, query = {}) =>
     })
     .promise();
 
-const retrieveItemByKeyFromTable = (tableName, key, value) =>
+const retrieveItemByKeyFromTable = (
+  tableName: TableName,
+  key: string,
+  value: unknown
+) =>
   dbClient
     .query({
       TableName: tableName,
       KeyConditionExpression: `${key} = :${key}`,
       ExpressionAttributeValues: {
         [`:${key}`]: value,
+      },
+    })
+    .promise();
+
+const createItemInTable = (tableName: TableName, itemData = {}) =>
+  dbClient
+    .put({
+      TableName: tableName,
+      Item: {
+        ...itemData,
       },
     })
     .promise();
@@ -45,10 +61,8 @@ const formatProductList = (products, stocks) =>
 
 export const getAllProductsWithStocks = async () => {
   try {
-    const { Items: products } = await retrieveDataFromTable(
-      TABLE_NAMES.products
-    );
-    const { Items: stocks } = await retrieveDataFromTable(TABLE_NAMES.stocks);
+    const { Items: products } = await retrieveDataFromTable(TableName.products);
+    const { Items: stocks } = await retrieveDataFromTable(TableName.stocks);
 
     return formatProductList(products, stocks);
   } catch (error) {
@@ -59,12 +73,12 @@ export const getAllProductsWithStocks = async () => {
 export const getProductWithStockById = async (productId) => {
   try {
     const { Items: product } = await retrieveItemByKeyFromTable(
-      TABLE_NAMES.products,
+      TableName.products,
       "id",
       productId
     );
     const { Items: productStock } = await retrieveItemByKeyFromTable(
-      TABLE_NAMES.stocks,
+      TableName.stocks,
       "product_id",
       productId
     );
@@ -74,5 +88,16 @@ export const getProductWithStockById = async (productId) => {
     return joinProductWithStock(product[0], productStock[0]);
   } catch (error) {
     console.log(error);
+  }
+};
+
+export const createProductItem = async (productFields: Product) => {
+  try {
+    return await createItemInTable(TableName.products, {
+      ...productFields,
+      id: uuidv4(),
+    });
+  } catch (error) {
+    console.log(error, "something went wrong while creating a product");
   }
 };

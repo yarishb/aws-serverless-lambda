@@ -26,7 +26,7 @@ jest.mock("@functions/data/productsList", () => [
 ]);
 
 describe("getProductById", () => {
-  const idFromRequestResult = 1;
+  const idFromRequestResult = "1";
 
   const event = {
     pathParameters: {

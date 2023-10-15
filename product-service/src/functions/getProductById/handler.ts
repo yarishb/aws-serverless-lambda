@@ -1,6 +1,6 @@
 import { middyfy } from "@libs/lambda";
 
-import productsList from "@functions/data/productsList";
+import productsList from "src/data/productsList";
 import {
   compose,
   findProductById,

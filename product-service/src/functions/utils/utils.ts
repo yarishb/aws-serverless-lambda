@@ -1,4 +1,4 @@
-import { ProductList } from "@functions/data/productsList";
+import { ProductList } from "src/data/productsList";
 import { formatJSONResponse } from "@libs/api-gateway";
 import { APIGatewayEvent, APIGatewayProxyResult } from "aws-lambda";
 

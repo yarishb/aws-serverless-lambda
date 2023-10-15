@@ -1,6 +1,6 @@
 // yourModule.test.ts
 
-import { ProductList } from "@functions/data/productsList";
+import { ProductList } from "src/data/productsList";
 import {
   compose,
   findProductById,

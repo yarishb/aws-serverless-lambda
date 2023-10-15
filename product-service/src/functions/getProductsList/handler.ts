@@ -1,7 +1,7 @@
 import { middyfy } from "@libs/lambda";
 
 import { formatResponse } from "@functions/utils/utils";
-import productsList from "@functions/data/productsList";
+import productsList from "src/data/productsList";
 
 export const getProductsList = async () => formatResponse(productsList);
 

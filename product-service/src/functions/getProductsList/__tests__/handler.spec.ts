@@ -1,5 +1,5 @@
 import { formatResponse } from "../../utils/utils";
-import { ProductList } from "../../data/productsList";
+import { ProductList } from "../../../data/productsList";
 
 import { getProductsList } from "../handler";
 

@@ -1,0 +1,28 @@
+{
+  "products": [
+    {
+      "title": "Xerjoff Naxos 1861",
+      "description": "A decent fragrance",
+      "price": 300,
+      "count": 1
+    },
+    {
+      "title": "Tom Ford - oud wood",
+      "description": "Nice and oudy",
+      "price": 200,
+      "count": 3
+    },
+    {
+      "title": "Tom Ford - noir de noir",
+      "description": "Not that versetile, but good",
+      "price": 300,
+      "count": 5
+    },
+    {
+      "title": "Acqua di Gio",
+      "description": "Good everyday one",
+      "price": 70,
+      "count": 20
+    }
+  ]
+}

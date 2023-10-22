@@ -1,5 +1,5 @@
+import { ProductList } from "@interfaces/product";
 import { formatResponse } from "../../utils/utils";
-import { ProductList } from "../../data/productsList";
 
 import { getProductsList } from "../handler";
 
@@ -27,7 +27,7 @@ describe("[handler/getProductsList]", () => {
   beforeEach(() => {
     jest.mock("@functions/data/productsList", () => mockProductList);
 
-    jest.mocked(formatResponse).mockImplementation(() => mockResponse);
+    jest.mocked(formatResponse).mockReturnValue(() => mockResponse);
   });
 
   it("should return list of products", async () => {

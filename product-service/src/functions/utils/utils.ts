@@ -1,4 +1,4 @@
-import { ProductList } from "@functions/data/productsList";
+import { ProductList } from "@interfaces/product";
 import { formatJSONResponse } from "@libs/api-gateway";
 import { APIGatewayEvent, APIGatewayProxyResult } from "aws-lambda";
 
@@ -13,7 +13,7 @@ export const findProductById =
 
 export const getIdFromRequest = ({
   pathParameters: { productId },
-}: APIGatewayEvent) => Number(productId);
+}: APIGatewayEvent) => productId;
 
 export const handleProductNotFound = (product) => {
   if (!product) throw Error("Product not found");
@@ -21,5 +21,19 @@ export const handleProductNotFound = (product) => {
   return product;
 };
 
-export const formatResponse = (data: unknown): APIGatewayProxyResult =>
-  formatJSONResponse({ data });
+export const formatResponse =
+  (statusCode: number) =>
+  (data: unknown): APIGatewayProxyResult =>
+    formatJSONResponse(statusCode, { data });
+
+export const validateProduct = (product) => {
+  const requiredField = ["title", "price", "description"];
+
+  requiredField.forEach((field) => {
+    if (!product[field]) {
+      throw Error("Invalid product fields");
+    }
+  });
+
+  return product;
+};

@@ -1,4 +1,3 @@
-import { ProductList } from "@functions/data/productsList";
 import { getProductById } from "../handler";
 import { APIGatewayEvent } from "aws-lambda";
 import {
@@ -6,6 +5,7 @@ import {
   formatResponse,
   getIdFromRequest,
 } from "@functions/utils/utils";
+import { ProductList } from "src/interfaces/product";
 
 jest.mock("@functions/utils/utils", () => ({
   ...jest.requireActual("@functions/utils/utils"),
@@ -26,7 +26,7 @@ jest.mock("@functions/data/productsList", () => [
 ]);
 
 describe("getProductById", () => {
-  const idFromRequestResult = 1;
+  const idFromRequestResult = "1";
 
   const event = {
     pathParameters: {

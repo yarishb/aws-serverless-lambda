@@ -23,3 +23,10 @@ export const StocksTable = {
     },
   },
 };
+
+export const CatalogItemsQueue = {
+  Type: "AWS::SQS::Queue",
+  Properties: {
+    QueueName: "catalogItemsQueue",
+  },
+};

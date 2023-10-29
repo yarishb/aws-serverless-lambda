@@ -3,11 +3,12 @@ import type { AWS } from "@serverless/typescript";
 import getProductsList from "@functions/getProductsList";
 import getProductById from "@functions/getProductById";
 import createProduct from "@functions/createProduct";
+import catalogBatchProcess from "@functions/catalogBatchProcess";
 
-import { ProductTable, StocksTable } from "@db/tables";
+import { ProductTable, StocksTable, CatalogItemsQueue } from "@db/tables";
 
 const serverlessConfiguration: AWS = {
-  service: "products-service-test",
+  service: "products-service-testing",
   frameworkVersion: "3",
   plugins: ["serverless-esbuild"],
   provider: {
@@ -34,14 +35,30 @@ const serverlessConfiguration: AWS = {
             Action: ["dynamodb:*"],
             Resource: "*",
           },
+          {
+            Effect: "Allow",
+            Action: ["sqs:*"],
+            Resource: {
+              "Fn::GetAtt": ["CatalogItemsQueue", "Arn"],
+            },
+          },
         ],
       },
     },
   },
   // import the function via paths
-  functions: { getProductsList, getProductById, createProduct },
+  functions: {
+    getProductsList,
+    getProductById,
+    createProduct,
+    catalogBatchProcess,
+  },
   resources: {
-    Resources: { Products: ProductTable, Stocks: StocksTable },
+    Resources: {
+      Products: ProductTable,
+      Stocks: StocksTable,
+      CatalogItemsQueue: CatalogItemsQueue,
+    },
   },
   package: { individually: true },
   custom: {

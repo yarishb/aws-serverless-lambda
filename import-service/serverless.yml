@@ -8,24 +8,23 @@ provider:
   stage: dev
   region: us-east-1
 
-  iamRoleStatements:
-    - Effect: Allow
-      Action:
-        - "s3:ListBucket"
-        - "s3:GetObject"
-        - "s3:PutObject"
-      Resource:
-        - "arn:aws:s3:::import-project"
-    - Effect: Allow
-      Action:
-        - 's3:*'
-      Resource:
-        - "arn:aws:s3:::import-project/*"
-
-custom:
-  webpack:
-    webpackConfig: 'webpack.config.js'
-    includeModules: true
+iamRoleStatements:
+  - Effect: Allow
+    Action:
+      - "s3:ListBucket"
+      - "s3:GetObject"
+      - "s3:PutObject"
+    Resource:
+      - "arn:aws:s3:::import-project"
+  - Effect: Allow
+    Action:
+      - 's3:*'
+    Resource:
+      - "arn:aws:s3:::import-project/*"
+  - Effect: Allow
+    Action: "sqs:*"
+    Resource:
+      - "arn:aws:sqs:us-east-1:206809917337:catalogItemsQueue"
 
 functions:
   importProductsFile:
@@ -43,4 +42,4 @@ functions:
           event: s3:ObjectCreated:*
           existing: true
           rules:
-            - prefix: import-project/
+            - prefix: uploaded/

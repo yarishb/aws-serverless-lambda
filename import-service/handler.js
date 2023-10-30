@@ -1,6 +1,6 @@
 const AWS = require("aws-sdk");
-const fastCSV = require('fast-csv')
-
+const csv = require("csv-parser");
+const stripBom = require("strip-bom-stream");
 const bucketName = "import-project";
 
 const defaultHeaders = {
@@ -8,14 +8,16 @@ const defaultHeaders = {
 };
 
 const s3 = new AWS.S3({ region: "us-east-1" });
-const sqs = new AWS.SQS({ region: 'us-east-1', apiVersion: '2012-11-05'  })
+const sqs = new AWS.SQS({ region: "us-east-1", apiVersion: "2012-11-05" });
+const QueueUrl =
+  "https://sqs.us-east-1.amazonaws.com/206809917337/catalogItemsQueue";
 
 module.exports = {
   importProductsFile: async ({ pathParameters: { name } }) => {
     const params = {
       Bucket: bucketName,
       Key: `/uploaded/${name}`,
-      ContentType: 'image/jpeg'
+      ContentType: "text/csv",
     };
 
     try {
@@ -35,48 +37,47 @@ module.exports = {
       };
     }
   },
-  importFileParser: async (event) => {
-    event.Records.forEach(record => {
-      const s3Stream = s3.getObject({
-        Bucket: bucketName,
-        Key: record.s3.object.key
-    }).createReadStream();
-
-    fastCSV.fromStream(s3Stream)
-      .on('data', (data) => {
-        console.log(data, 'data');
-
-        sqs.sendMessage({
-          QueueUrl: 'https://sqs.us-east-1.amazonaws.com/206809917337/catalogItemsQueue',
-          MessageBody: JSON.stringify(data),
-        }).promise()
-      })
-      .on('end', () => {
-        s3.copyObject({
+  importFileParser: (event) => {
+    event.Records.forEach(async (record) => {
+      const s3Stream = s3
+        .getObject({
           Bucket: bucketName,
-          CopySource: `${bucketName}/${record.s3.object.key}`,
-          Key: record.s3.object.key.replace('uploaded', 'parsed')
-        }).promise();
-      })
+          Key: record.s3.object.key,
+        })
+        .createReadStream();
 
-    // console.log(record.s3.object.key);
-    // s3Stream.pipe(csv())
-    // .on('data', (data) => {
-    //   console.log(data, 'data');
+      const csvData = [];
+      s3Stream
+        .pipe(stripBom())
+        .pipe(csv())
+        .on("data", async (data) => {
+          console.log(data, "CSV DATA HERE!");
+          csvData.push(data);
+        })
+        .on("end", async () => {
+          if (csvData.length) {
+            sqs.sendMessage(
+              {
+                QueueUrl: QueueUrl,
+                MessageBody: JSON.stringify(csvData),
+              },
+              (err, data) => {
+                console.log(err, data);
+              }
+            );
+          }
 
-    //   sqs.sendMessage({
-    //     QueueUrl: 'https://sqs.us-east-1.amazonaws.com/206809917337/catalogItemsQueue',
-    //     MessageBody: JSON.stringify(data),
-    //   }).promise()
-    // })
-    // .on('end', () => {
-    //   s3.copyObject({
-    //     Bucket: bucketName,
-    //     CopySource: `${bucketName}/${record.s3.object.key}`,
-    //     Key: record.s3.object.key.replace('uploaded', 'parsed')
-    //   }).promise();
-    // })
-    // .on('error', (error) => console.error(error, "Caught an error"))
-    })
-  }
-}
+          s3.copyObject(
+            {
+              Bucket: bucketName,
+              CopySource: `${bucketName}/${record.s3.object.key}`,
+              Key: record.s3.object.key.replace("uploaded", "parsed"),
+            },
+            (err, data) => {
+              console.log(err, data);
+            }
+          );
+        });
+    });
+  },
+};

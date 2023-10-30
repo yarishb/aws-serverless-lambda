@@ -5,7 +5,13 @@ import getProductById from "@functions/getProductById";
 import createProduct from "@functions/createProduct";
 import catalogBatchProcess from "@functions/catalogBatchProcess";
 
-import { ProductTable, StocksTable, CatalogItemsQueue } from "@db/tables";
+import {
+  ProductTable,
+  StocksTable,
+  CatalogItemsQueue,
+  CreateProductTopic,
+  CreateProductTopicSubscription,
+} from "@db/tables";
 
 const serverlessConfiguration: AWS = {
   service: "products-service-testing",
@@ -26,6 +32,7 @@ const serverlessConfiguration: AWS = {
       STAGE: "dev",
       PRODUCT_TABLE: "Products",
       STOCK_TABLE: "Stocks",
+      SNS_TOPIC: "CreateProductTopic",
     },
     iam: {
       role: {
@@ -40,6 +47,13 @@ const serverlessConfiguration: AWS = {
             Action: ["sqs:*"],
             Resource: {
               "Fn::GetAtt": ["CatalogItemsQueue", "Arn"],
+            },
+          },
+          {
+            Effect: "Allow",
+            Action: ["sns:*"],
+            Resource: {
+              Ref: "CreateProductTopic",
             },
           },
         ],
@@ -58,6 +72,8 @@ const serverlessConfiguration: AWS = {
       Products: ProductTable,
       Stocks: StocksTable,
       CatalogItemsQueue: CatalogItemsQueue,
+      CreateProductTopic: CreateProductTopic,
+      CreateProductTopicSubscription: CreateProductTopicSubscription,
     },
   },
   package: { individually: true },

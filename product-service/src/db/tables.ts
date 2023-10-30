@@ -23,3 +23,28 @@ export const StocksTable = {
     },
   },
 };
+
+export const CatalogItemsQueue = {
+  Type: "AWS::SQS::Queue",
+  Properties: {
+    QueueName: "catalogItemsQueue",
+  },
+};
+
+export const CreateProductTopic = {
+  Type: "AWS::SNS::Topic",
+  Properties: {
+    TopicName: "createProductTopic",
+  },
+};
+
+export const CreateProductTopicSubscription = {
+  Type: "AWS::SNS::Subscription",
+  Properties: {
+    Endpoint: "yhbohdan@gmail.com",
+    Protocol: "email",
+    TopicArn: {
+      Ref: "CreateProductTopic",
+    },
+  },
+};

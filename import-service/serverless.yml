@@ -33,6 +33,8 @@ functions:
       - http:
           method: get
           path: import/{name}
+          authorizer:
+            arn: arn:aws:lambda:us-east-1:206809917337:function:authorization-service-dev-basicAuthorizer
 
   importFileParser:
     handler: handler.importFileParser
